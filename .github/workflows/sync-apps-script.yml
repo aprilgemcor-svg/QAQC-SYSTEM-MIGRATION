@@ -54,7 +54,7 @@ jobs:
           EOF
           cat > deploy/.clasp.json <<'EOF'
           {
-            "scriptId": ""1578oVojGJCjf7WTYykDO7BRczzlF4eq-YvHlRqw9CVmpEDqk-lVUpluu",
+            "scriptId": "1578oVojGJCjf7WTYykDO7BRczzlF4eq-YvHlRqw9CVmpEDqk-lVUpluu",
             "rootDir": "."
           }
           EOF
