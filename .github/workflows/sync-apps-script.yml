@@ -1,6 +1,6 @@
 name: Sync QAQC code to Google Apps Script
 
-on:
+"on":
   push:
     branches:
       - main
@@ -54,7 +54,7 @@ jobs:
           EOF
           cat > deploy/.clasp.json <<'EOF'
           {
-            "scriptId": "1hVB26FX7FZB3_lxbGfUcZFQvLRlqdm-Ylnr8QoZTf0iU36jorn2p_xYv",
+            "scriptId": ""1578oVojGJCjf7WTYykDO7BRczzlF4eq-YvHlRqw9CVmpEDqk-lVUpluu",
             "rootDir": "."
           }
           EOF
@@ -71,4 +71,4 @@ jobs:
 
       - name: Update live web app deployment
         working-directory: deploy
-        run: npx --yes @google/clasp deploy --deploymentId 'AKfycbxRcTDJJSXCRZhi9DlsWi9oF2V0e1PwU1tizUCuw0prLZzW9eNhqpMKyJrBOnKoACkqig' --description "Auto-deploy from GitHub commit $GITHUB_SHA"
+        run: npx --yes @google/clasp deploy --deploymentId 'AKfycbzteBc0uV7uotEtqq8Poexr6zw0___Mb2lEKJGbztEv4UzYKPNI-r3203tB4k_1fJDbjg' --description "Auto-deploy from GitHub commit $GITHUB_SHA"
