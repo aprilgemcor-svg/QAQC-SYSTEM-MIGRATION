@@ -1,1 +1,74 @@
+name: Sync QAQC code to Google Apps Script
 
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'Backend/**'
+      - 'Frontend/**'
+      - '.github/workflows/sync-apps-script.yml'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Require Google authentication
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ]; then
+            echo "::error::Missing repository Actions secret CLASPRC_JSON. Configure Google clasp authentication before running sync."
+            exit 1
+          fi
+
+      - name: Prepare Apps Script source folder
+        run: |
+          mkdir -p deploy
+          cp Backend/Code.gs deploy/Code.gs
+          cp Frontend/index.html deploy/index.html
+          cat > deploy/appsscript.json <<'EOF'
+          {
+            "timeZone": "Asia/Manila",
+            "exceptionLogging": "STACKDRIVER",
+            "runtimeVersion": "V8",
+            "oauthScopes": [
+              "https://www.googleapis.com/auth/spreadsheets",
+              "https://www.googleapis.com/auth/drive"
+            ],
+            "webapp": {
+              "executeAs": "USER_DEPLOYING",
+              "access": "ANYONE_ANONYMOUS"
+            }
+          }
+          EOF
+          cat > deploy/.clasp.json <<'EOF'
+          {
+            "scriptId": "1hVB26FX7FZB3_lxbGfUcZFQvLRlqdm-Ylnr8QoZTf0iU36jorn2p_xYv",
+            "rootDir": "."
+          }
+          EOF
+
+      - name: Configure clasp credentials
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
+
+      - name: Push source to Google Apps Script
+        working-directory: deploy
+        run: npx --yes @google/clasp push --force
+
+      - name: Update live web app deployment
+        working-directory: deploy
+        run: npx --yes @google/clasp deploy --deploymentId 'AKfycbxRcTDJJSXCRZhi9DlsWi9oF2V0e1PwU1tizUCuw0prLZzW9eNhqpMKyJrBOnKoACkqig' --description "Auto-deploy from GitHub commit $GITHUB_SHA"
